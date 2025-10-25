@@ -92,4 +92,160 @@ location ~ ^/s/ {
     try_files $uri $uri/ /redirect.php;
 }
 
+
 # 其他 PHP 处理规则...
+```
+
+#### Apache 配置
+
+在网站根目录创建 `.htaccess` 文件，内容如下：
+
+```apache
+RewriteEngine On
+RewriteBase /
+
+# 保护数据库文件
+<Files "urls.db">
+    Require all denied
+</Files>
+
+# 短链接重写规则
+RewriteRule ^s/([a-zA-Z0-9]+)$ redirect.php [L]
+```
+
+---
+
+## ⚙️ ShareX 客户端配置
+
+复制以下配置，在 ShareX 中 `目标 -> 自定义上传器设置 -> 导入`。
+
+**⚠️ 重要：请务必将配置中的 `YourSecretApiKeyHere123!@#` 替换为您在 `upload.php` 中设置的真实密钥！**
+
+<details>
+<summary>点击展开：图片上传器配置</summary>
+
+```json
+{
+  "Version": "18.0.0",
+  "Name": "Your-Domain - Image",
+  "DestinationType": "ImageUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://your-domain.com/upload.php",
+  "Body": "MultipartFormData",
+  "Arguments": {},
+  "FileFormName": "sharex",
+  "Headers": {
+    "X-API-Key": "YourSecretApiKeyHere123!@#"
+  },
+  "URL": "{json:url}"
+}
+```
+</details>
+
+<details>
+<summary>点击展开：文件上传器配置</summary>
+
+```json
+{
+  "Version": "18.0.0",
+  "Name": "Your-Domain - File",
+  "DestinationType": "FileUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://your-domain.com/upload.php",
+  "Body": "MultipartFormData",
+  "Arguments": {},
+  "FileFormName": "sharex",
+  "Headers": {
+    "X-API-Key": "YourSecretApiKeyHere123!@#"
+  },
+  "URL": "{json:url}"
+}
+```
+</details>
+
+<details>
+<summary>点击展开：文本上传器配置</summary>
+
+```json
+{
+  "Version": "18.0.0",
+  "Name": "Your-Domain - Text",
+  "DestinationType": "TextUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://your-domain.com/upload.php",
+  "Body": "MultipartFormData",
+  "Arguments": {
+    "content": "{input}"
+  },
+  "Headers": {
+    "X-API-Key": "YourSecretApiKeyHere123!@#"
+  },
+  "URL": "{json:url}"
+}
+```
+</details>
+
+<details>
+<summary>点击展开：URL缩短器配置</summary>
+
+```json
+{
+  "Version": "18.0.0",
+  "Name": "Your-Domain - URL Shortener",
+  "DestinationType": "URLShortener",
+  "RequestMethod": "POST",
+  "RequestURL": "https://your-domain.com/upload.php",
+  "Body": "MultipartFormData",
+  "Arguments": {
+    "content": "{input}"
+  },
+  "Headers": {
+    "X-API-Key": "YourSecretApiKeyHere123!@#"
+  },
+  "URL": "{json:url}"
+}
+```
+</details>
+
+---
+
+## 📁 项目结构
+
+部署成功后，您的目录结构应该如下所示：
+
+```
+/your-domain/
+|-- upload.php       # 主上传处理脚本
+|-- redirect.php     # 短链接重定向脚本
+|-- .htaccess        # (Apache) URL重写和安全规则
+|
+|-- img/             # 图片存储目录 (自动创建)
+|   |-- 2024-05/
+|   `-- ...
+|
+|-- file/            # 普通文件存储目录 (自动创建)
+|
+|-- txt/             # 文本文件存储目录 (自动创建)
+|
+`-- urls.db          # SQLite 数据库 (自动创建)
+```
+
+---
+
+## 🛡️ 安全注意事项
+
+- **务必修改 API Key**：不要使用默认或简单的 API Key。
+- **保护数据库**：Web 服务器配置已禁止直接访问 `urls.db`，请确保配置生效。
+- **目录权限**：确保 Web 服务器对上传目录有写权限，但不要给予过高权限（755 通常是安全的）。
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request 来帮助改进这个项目！
+
+---
+
+## 📄 许可证
+
+本项目基于 [MIT License](LICENSE) 开源。
